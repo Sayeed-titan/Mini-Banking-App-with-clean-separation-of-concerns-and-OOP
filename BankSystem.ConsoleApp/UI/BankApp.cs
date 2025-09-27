@@ -52,9 +52,52 @@ namespace BankSystem.ConsoleApp.UI
                     case "4":
                         ShowBalanceMenu();
                         break;
+                    case "5":
+                        ShowTransactionHistoryMenu();
+                        break;
+                    case "6":
+                        ListAccounts();
+                        break;
+                    case "0":
+                        exit = true;
+                        break;
                     default:
+                        Console.WriteLine("Invalid option. Try again.");
                         break;
                 }
+            }
+
+            Console.WriteLine("Goodbye!");
+        }
+
+        private void ListAccounts()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ShowTransactionHistoryMenu()
+        {
+            Console.WriteLine("Account Number (or press ENTER for all): ");
+            var accNo = Console.ReadLine()?.Trim();
+            if(string.IsNullOrWhiteSpace(accNo))
+            {
+                var all = _transactionService.GetAllTransactions();
+                foreach (var tx in all)
+                {
+                    Console.WriteLine(tx);
+                }
+                return; 
+            }
+
+            var txs = _transactionService.GetTransactionsForAccount(accNo);
+            if (!txs.Any())
+            {
+                Console.WriteLine("No transaction found for this account/s.");
+                return;
+            }
+            foreach (var tx in txs)
+            {
+                Console.WriteLine(tx);
             }
         }
 
