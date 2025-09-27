@@ -11,7 +11,7 @@ namespace BankSystem.ConsoleApp.Core.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string AccountNumber { get; set; } = null!;
-        public TransactionType TransactionType { get; set; }
+        public TransactionType Type { get; set; }
         public decimal Amount { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
         public decimal BalanceAfter { get; set; }
@@ -19,7 +19,7 @@ namespace BankSystem.ConsoleApp.Core.Models
 
         public override string ToString()
         {
-            return $"{Timestamp: u} | {TransactionType, -7} | {Amount, 10:c} | Balance After: {BalanceAfter, 10:c} | {Description}";
+            return $"{Timestamp:u} | {Type,-7} | {Amount,10:C} | BalAfter: {BalanceAfter,10:C} | {Description}";
         }
     }
 }
