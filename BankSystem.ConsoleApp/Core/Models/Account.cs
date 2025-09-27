@@ -34,7 +34,7 @@ namespace BankSystem.ConsoleApp.Core.Models
             Balance += amount;
         }
 
-        public abstract void Withdraw(decimal amoint, string? description = null);
+        public abstract void Withdraw(decimal amount, string? description = null);
 
         public decimal GetBalance() => Balance;
 
