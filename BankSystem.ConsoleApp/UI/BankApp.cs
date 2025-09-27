@@ -1,4 +1,5 @@
-﻿using BankSystem.ConsoleApp.Core.Models;
+﻿using BankSystem.ConsoleApp.Core.Enums;
+using BankSystem.ConsoleApp.Core.Models;
 using BankSystem.ConsoleApp.Services;
 using System;
 using System.Collections.Generic;
@@ -42,9 +43,50 @@ namespace BankSystem.ConsoleApp.UI
                     case "1":
                         CreateAccountMenu();
                         break;
+                    case "2":
+                        DepositMenu();
+                        break;
                     default:
                         break;
                 }
+            }
+        }
+
+        private void DepositMenu()
+        {
+            Console.WriteLine("Account Number: ");
+            var accNo = Console.ReadLine()?.Trim();
+
+            Console.WriteLine("Amount to deposit: ");
+            var amt = ParseDecimalOrZero(Console.ReadLine());
+
+            Console.WriteLine("Description (optional): ");
+            var desc = Console.ReadLine();
+
+            var acc = _accountService.GetByAccountNumber(accNo!);
+            if(acc == null)
+            {
+                Console.WriteLine("Account not found.");
+                return;
+            }
+
+            try
+            {
+                acc.Deposite(amt, desc);
+                var tx = new Core.Models.Transaction
+                {
+                    AccountNumber = acc.AccountNumber,
+                    Type = TransactionType.Deposit,
+                    Amount = amt,
+                    BalanceAfter = acc.Balance,
+                    Description = desc
+                };
+                _transactionService.RecordTransaction(tx);
+                Console.WriteLine($"Deposited {amt:C} to {acc.AccountNumber}. New balance: {acc.Balance:C}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Deposit failed: {ex.Message}");
             }
         }
 
