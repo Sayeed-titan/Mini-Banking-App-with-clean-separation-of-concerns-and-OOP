@@ -11,7 +11,7 @@ namespace BankSystem.ConsoleApp.Core.Models
     {
         public string AccountNumber { get; private set; }
         public string OwnerName { get; private set; }
-        public decimal Balance { get; private set; }
+        public decimal Balance { get; protected set; }
 
 
         protected Account(string accountNumber, string ownerName, decimal initialBalance = 0m)
