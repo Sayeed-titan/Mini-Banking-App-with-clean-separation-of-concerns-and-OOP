@@ -72,7 +72,11 @@ namespace BankSystem.ConsoleApp.UI
 
         private void ListAccounts()
         {
-            throw new NotImplementedException();
+            var list = _accountService.GetAllAccounts();
+            foreach (var a in list)
+            {
+                Console.WriteLine(a);
+            }
         }
 
         private void ShowTransactionHistoryMenu()

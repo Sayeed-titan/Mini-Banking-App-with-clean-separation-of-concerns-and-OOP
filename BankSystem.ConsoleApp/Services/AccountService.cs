@@ -37,7 +37,7 @@ namespace BankSystem.ConsoleApp.Services
             return acc;
         }
 
-        public IEnumerable<Account> GetAccounts() => _account.Values.ToList();
+        public IEnumerable<Account> GetAllAccounts() => _account.Values.ToList();
 
         public Account? GetByAccountNumber(string accountNumber)
         {

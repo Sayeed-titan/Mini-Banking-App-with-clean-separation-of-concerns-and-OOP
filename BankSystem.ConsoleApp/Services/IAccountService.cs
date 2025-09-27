@@ -12,7 +12,7 @@ namespace BankSystem.ConsoleApp.Services
         Account CreateSavings(string accountNumber, string ownerName, decimal initialBalance = 0m);
         Account CreateChecking(string accountNumber, string ownerName, decimal initialBalance = 0m, decimal overdraftLimit = 500m);
         Account? GetByAccountNumber (string accountNumber);
-        IEnumerable<Account> GetAccounts();
+        IEnumerable<Account> GetAllAccounts();
 
     }
 }
