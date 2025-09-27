@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankSystem.ConsoleApp.Core.Models
 {
-    internal class CheckingAccount : Account
+    public class CheckingAccount : Account
     {
         public decimal OverdraftLimit { get; private set; }
 
