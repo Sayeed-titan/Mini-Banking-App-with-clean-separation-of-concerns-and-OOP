@@ -49,10 +49,28 @@ namespace BankSystem.ConsoleApp.UI
                     case "3":
                         WithdrawMenu();
                         break;
+                    case "4":
+                        ShowBalanceMenu();
+                        break;
                     default:
                         break;
                 }
             }
+        }
+
+        private void ShowBalanceMenu()
+        {
+            Console.WriteLine("Account Number: ");
+            var accNo = Console.ReadLine()?.Trim();
+
+            var acc = _accountService.GetByAccountNumber(accNo!);
+            if( acc  == null)
+            {
+                Console.WriteLine("Account not found.");
+                return;
+            }
+
+            Console.WriteLine($"Account: {acc.AccountNumber} | Owner: {acc.OwnerName} | Balance: {acc.Balance:C} ");
         }
 
         private void WithdrawMenu()
