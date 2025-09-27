@@ -1,2 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using BankSystem.ConsoleApp.UI;
+
+var app = new BankApp();
+app.Run();
+
+Console.ReadKey();

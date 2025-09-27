@@ -1,6 +1,8 @@
-﻿using BankSystem.ConsoleApp.Services;
+﻿using BankSystem.ConsoleApp.Core.Models;
+using BankSystem.ConsoleApp.Services;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +27,88 @@ namespace BankSystem.ConsoleApp.UI
 
         public void Run()
         {
-            Console.WriteLine("Test Run");
+            //Console.WriteLine("Test Run");
+
+            bool exit = false;
+
+            while (!exit)
+            {
+                PrintMenu();
+                Console.WriteLine("Choose option: ");
+                var input = Console.ReadLine();
+
+                switch(input?.Trim())
+                {
+                    case "1":
+                        CreateAccountMenu();
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
+
+        private void CreateAccountMenu()
+        {
+            Console.WriteLine("Account Type (S-Saving, C-Checking): ");
+            var type = Console.ReadLine()?.Trim().ToUpperInvariant();
+
+            Console.WriteLine("Account Number: ");
+            var accNo = Console.ReadLine()?.Trim();
+
+            Console.WriteLine("Owner Name: ");
+            var owner = Console.ReadLine()?.Trim();
+
+            Console.WriteLine("Initial Balance (number): ");
+            var balStr = Console.ReadLine();
+            decimal initial = ParseDecimalOrZero(balStr);
+
+            try
+            {
+                Account acc;
+                if( type == "S")
+                {
+                    acc = _accountService.CreateSavings(accNo!, owner!, initial);
+                }
+                else
+                {
+                    Console.WriteLine("Overdraft Limit (for checking): ");
+                    var odStr = Console.ReadLine();
+                    var od = ParseDecimalOrZero(odStr);
+
+                    acc = _accountService.CreateChecking(accNo!, owner!, initial, od);
+                }
+
+                Console.WriteLine($"Created account: {acc}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating account: {ex.Message}");
+            }
+        }
+
+        private decimal ParseDecimalOrZero(string? input)
+        {
+            if( decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out var v ))
+                return v;
+            return 0m;
+        }
+
+        private void PrintMenu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("=== Simple Bank System ===");
+            Console.WriteLine("1) Create Account (Savings/ Checking)");
+            Console.WriteLine("2) Deposit");
+            Console.WriteLine("3) Withdraw");
+            Console.WriteLine("4) Show Balance");
+            Console.WriteLine("5) Show Transaction History");
+            Console.WriteLine("6) List All Accounts");
+            Console.WriteLine("0) Exit");
+            Console.WriteLine();
+        }
+
+
+
     }
 }
