@@ -46,9 +46,51 @@ namespace BankSystem.ConsoleApp.UI
                     case "2":
                         DepositMenu();
                         break;
+                    case "3":
+                        WithdrawMenu();
+                        break;
                     default:
                         break;
                 }
+            }
+        }
+
+        private void WithdrawMenu()
+        {
+            Console.WriteLine("Account Number: ");
+            var accNo = Console.ReadLine();
+
+            Console.WriteLine("Amount to withdraw: ");
+            var amt = ParseDecimalOrZero(Console.ReadLine());
+
+            Console.WriteLine("Description (optional): ");
+            var desc = Console.ReadLine();
+
+            var acc = _accountService.GetByAccountNumber(accNo!);
+            if(acc == null)
+            {
+                Console.WriteLine("Account not found.");
+                return;
+            }
+
+            try
+            {
+                acc.Withdraw(amt, desc);
+                var tx = new Core.Models.Transaction
+                {
+                    AccountNumber = acc.AccountNumber,
+                    Type = TransactionType.Withdraw,
+                    Amount = amt,
+                    BalanceAfter = acc.Balance,
+                    Description = desc
+                };
+                _transactionService.RecordTransaction(tx);
+                Console.WriteLine($"Withdraw {amt:C} from {acc.AccountNumber}. New balance: {acc.Balance:C}");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Withdraw failed: {ex.Message}");
             }
         }
 
