@@ -1,11 +1,7 @@
-﻿using System;
+﻿using BankSystem.ConsoleApp.Core.Data;
+using BankSystem.ConsoleApp.Core.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using BankSystem.ConsoleApp.Core.Data;
-using BankSystem.ConsoleApp.Core.Models;
 
 namespace BankSystem.ConsoleApp.Services
 {
@@ -18,19 +14,25 @@ namespace BankSystem.ConsoleApp.Services
             _context = context;
         }
 
-        private readonly List<Core.Models.Transaction> _transactions = new();
-
-        public IEnumerable<Core.Models.Transaction> GetAllTransactions() => _transactions.OrderByDescending(t => t.Timestamp);
-
-        public IEnumerable<Core.Models.Transaction> GetTransactionsForAccount(string accountNumber)
+        public void RecordTransaction(Transaction tx)
         {
-            return _transactions.Where(t => t.AccountNumber == accountNumber).OrderByDescending(t => t.Timestamp);
+            _context.Transactions.Add(tx);
+            _context.SaveChanges();
         }
 
-        public void RecordTransaction(Core.Models.Transaction tx)
+        public IEnumerable<Transaction> GetTransactionsForAccount(string accountNumber)
         {
-            if (tx == null) throw new System.ArgumentNullException(nameof(tx));
-            _transactions.Add(tx);
+            return _context.Transactions
+                .Where(t => t.AccountNumber == accountNumber)
+                .OrderByDescending(t => t.Timestamp)
+                .ToList();
+        }
+
+        public IEnumerable<Transaction> GetAllTransactions()
+        {
+            return _context.Transactions
+                .OrderByDescending(t => t.Timestamp)
+                .ToList();
         }
     }
 }

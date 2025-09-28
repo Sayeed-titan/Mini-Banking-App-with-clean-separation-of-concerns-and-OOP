@@ -3,8 +3,6 @@ using BankSystem.ConsoleApp.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BankSystem.ConsoleApp.Services
 {
@@ -16,41 +14,60 @@ namespace BankSystem.ConsoleApp.Services
         {
             _context = context;
         }
-        private readonly Dictionary<string, Account> _account = new();
 
-        public Account CreateChecking(string accountNumber, string ownerName, decimal initialBalance = 0, decimal overdraftLimit = 500)
+        public Account CreateSavings(string accountNumber, string ownerName, decimal initialBalance)
         {
-            ThrowIfExists(accountNumber);
+            var acc = new SavingsAccount
+            {
+                AccountNumber = accountNumber,
+                OwnerName = ownerName,
+                Balance = initialBalance
+            };
 
-            var acc = new CheckingAccount (accountNumber, ownerName, initialBalance, overdraftLimit);
-            _account[accountNumber] = acc;
-
+            _context.Accounts.Add(acc);
+            _context.SaveChanges();
             return acc;
         }
 
-        private void ThrowIfExists(string accountNumber)
+        public Account CreateChecking(string accountNumber, string ownerName, decimal initialBalance, decimal overdraftLimit)
         {
-            if (_account.ContainsKey(accountNumber))
-                throw new InvalidOperationException($"Account with number {accountNumber} already exists.");
-        }
+            var acc = new CheckingAccount
+            {
+                AccountNumber = accountNumber,
+                OwnerName = ownerName,
+                Balance = initialBalance,
+                OverdraftLimit = overdraftLimit
+            };
 
-        public Account CreateSavings(string accountNumber, string ownerName, decimal initialBalance = 0)
-        {
-            ThrowIfExists (accountNumber);
-
-            var acc = new SavingsAccount (accountNumber, ownerName, initialBalance);
-            _account[accountNumber] = acc;
-
+            _context.Accounts.Add(acc);
+            _context.SaveChanges();
             return acc;
         }
-
-        public IEnumerable<Account> GetAllAccounts() => _account.Values.ToList();
 
         public Account? GetByAccountNumber(string accountNumber)
         {
-            _account.TryGetValue(accountNumber, out var acc);
+            return _context.Accounts.FirstOrDefault(a => a.AccountNumber == accountNumber);
+        }
 
-            return acc;
+        public IEnumerable<Account> GetAllAccounts()
+        {
+            return _context.Accounts.ToList();
+        }
+
+        public void Deposit(string accountNumber, decimal amount)
+        {
+            var acc = GetByAccountNumber(accountNumber)
+                ?? throw new InvalidOperationException("Account not found.");
+            acc.Deposit(amount);
+            _context.SaveChanges();
+        }
+
+        public void Withdraw(string accountNumber, decimal amount, string? description = null)
+        {
+            var acc = GetByAccountNumber(accountNumber)
+                ?? throw new InvalidOperationException("Account not found.");
+            acc.Withdraw(amount, description);
+            _context.SaveChanges();
         }
     }
 }

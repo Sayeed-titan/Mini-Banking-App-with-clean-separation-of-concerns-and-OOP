@@ -1,43 +1,41 @@
-﻿using BankSystem.ConsoleApp.Core.Interfaces;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace BankSystem.ConsoleApp.Core.Models
 {
-    public abstract class Account : ITransaction
+    public abstract class Account
     {
         [Key]
-        public string AccountNumber { get; private set; }
-        public string OwnerName { get; private set; }
-        public decimal Balance { get; protected set; }
+        public string AccountNumber { get; set; } = null!;
+        public string OwnerName { get; set; } = null!;
 
-        protected Account()
+        // Allow setting balance inside services & EF
+        public decimal Balance { get; set; }
+
+        protected Account() { }  // Needed for EF Core
+
+        protected Account(string accountNumber, string ownerName, decimal initialBalance)
         {
-        }
-
-        protected Account(string accountNumber, string ownerName, decimal initialBalance = 0m)
-        {
-            if(string.IsNullOrWhiteSpace(accountNumber))
-             throw new ArgumentNullException("Account number required",nameof(accountNumber)); 
-
-            if(string.IsNullOrWhiteSpace(ownerName))
-                throw new ArgumentNullException("Owner name required",nameof(ownerName));
-
             AccountNumber = accountNumber;
             OwnerName = ownerName;
             Balance = initialBalance;
         }
 
-
-        public virtual void Deposite(decimal amount, string? description = null)
+        public virtual void Deposit(decimal amount)
         {
-            if (amount <=0 ) throw new ArgumentException("Deposit amount must be greater than zero and positive", nameof(amount));
-
+            if (amount <= 0)
+                throw new InvalidOperationException("Deposit must be positive.");
             Balance += amount;
         }
 
-        public abstract void Withdraw(decimal amount, string? description = null);
-
-        public decimal GetBalance() => Balance;
+        public virtual void Withdraw(decimal amount, string? description = null)
+        {
+            if (amount <= 0)
+                throw new InvalidOperationException("Withdrawal must be positive.");
+            if (Balance < amount)
+                throw new InvalidOperationException("Insufficient funds.");
+            Balance -= amount;
+        }
 
         public override string ToString()
         {

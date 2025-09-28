@@ -1,4 +1,5 @@
 ﻿using BankSystem.ConsoleApp.Core.Data;
+using BankSystem.ConsoleApp.Infrastructure;
 using BankSystem.ConsoleApp.UI;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,9 @@ using var context = new BankDbContext(options);
 
 // 3. Ensure DB is created
 context.Database.EnsureCreated();
+
+//Seeder
+DbSeeder.Seed(context);
 
 // 4. Pass context (or services built on it) to the app
 var app = new BankApp(context);

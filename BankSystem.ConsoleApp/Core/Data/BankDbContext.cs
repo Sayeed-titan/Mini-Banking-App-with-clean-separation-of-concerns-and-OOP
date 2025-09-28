@@ -20,12 +20,13 @@ namespace BankSystem.ConsoleApp.Core.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Account>()
                 .HasDiscriminator<string>("AccountType")
                 .HasValue<SavingsAccount>("Savings")
                 .HasValue<CheckingAccount>("Checking");
+
+            base.OnModelCreating(modelBuilder);
 
         }
 
