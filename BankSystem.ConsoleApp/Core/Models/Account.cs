@@ -1,14 +1,11 @@
 ﻿using BankSystem.ConsoleApp.Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace BankSystem.ConsoleApp.Core.Models
 {
     public abstract class Account : ITransaction
     {
+        [Key]
         public string AccountNumber { get; private set; }
         public string OwnerName { get; private set; }
         public decimal Balance { get; protected set; }

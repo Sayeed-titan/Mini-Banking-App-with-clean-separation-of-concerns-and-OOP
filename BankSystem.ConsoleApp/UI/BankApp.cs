@@ -1,4 +1,5 @@
-﻿using BankSystem.ConsoleApp.Core.Enums;
+﻿using BankSystem.ConsoleApp.Core.Data;
+using BankSystem.ConsoleApp.Core.Enums;
 using BankSystem.ConsoleApp.Core.Models;
 using BankSystem.ConsoleApp.Services;
 using System;
@@ -15,10 +16,10 @@ namespace BankSystem.ConsoleApp.UI
         private readonly IAccountService _accountService;
         private readonly ITransactionService _transactionService;
 
-        public BankApp()
+        public BankApp(BankDbContext context)
         {
-            _accountService = new AccountService();
-            _transactionService = new TransactionService();
+            _accountService = new AccountService(context);
+            _transactionService = new TransactionService(context);
 
 
             //seed demo accounts 

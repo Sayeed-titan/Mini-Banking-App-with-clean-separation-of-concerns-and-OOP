@@ -1,4 +1,5 @@
-﻿using BankSystem.ConsoleApp.Core.Models;
+﻿using BankSystem.ConsoleApp.Core.Data;
+using BankSystem.ConsoleApp.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,12 @@ namespace BankSystem.ConsoleApp.Services
 {
     public class AccountService : IAccountService
     {
+        private readonly BankDbContext _context;
+
+        public AccountService(BankDbContext context)
+        {
+            _context = context;
+        }
         private readonly Dictionary<string, Account> _account = new();
 
         public Account CreateChecking(string accountNumber, string ownerName, decimal initialBalance = 0, decimal overdraftLimit = 500)

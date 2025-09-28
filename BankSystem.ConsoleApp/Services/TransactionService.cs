@@ -4,12 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using BankSystem.ConsoleApp.Core.Data;
 using BankSystem.ConsoleApp.Core.Models;
 
 namespace BankSystem.ConsoleApp.Services
 {
     public class TransactionService : ITransactionService
     {
+        private readonly BankDbContext _context;
+
+        public TransactionService(BankDbContext context)
+        {
+            _context = context;
+        }
+
         private readonly List<Core.Models.Transaction> _transactions = new();
 
         public IEnumerable<Core.Models.Transaction> GetAllTransactions() => _transactions.OrderByDescending(t => t.Timestamp);
