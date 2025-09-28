@@ -2,11 +2,9 @@
 {
     public class SavingsAccount : Account
     {
-        public SavingsAccount() : base() { } // For EF
+        public SavingsAccount() { } // EF Core
 
-        public SavingsAccount(string accountNumber, string ownerName, decimal initialBalance)
-            : base(accountNumber, ownerName, initialBalance) { }
-
-        // Could add interest logic here later
+        public SavingsAccount(string accountNumber, string ownerName, decimal initialBalance, User user)
+            : base(accountNumber, ownerName, initialBalance, user) { }
     }
 }

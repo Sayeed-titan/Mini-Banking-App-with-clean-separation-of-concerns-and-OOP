@@ -15,30 +15,17 @@ namespace BankSystem.ConsoleApp.Services
             _context = context;
         }
 
-        public Account CreateSavings(string accountNumber, string ownerName, decimal initialBalance)
+        public Account CreateSavings(string accountNumber, string ownerName, decimal initialBalance, User owner)
         {
-            var acc = new SavingsAccount
-            {
-                AccountNumber = accountNumber,
-                OwnerName = ownerName,
-                Balance = initialBalance
-            };
-
+            var acc = new SavingsAccount(accountNumber, ownerName, initialBalance, owner);
             _context.Accounts.Add(acc);
             _context.SaveChanges();
             return acc;
         }
 
-        public Account CreateChecking(string accountNumber, string ownerName, decimal initialBalance, decimal overdraftLimit)
+        public Account CreateChecking(string accountNumber, string ownerName, decimal initialBalance, decimal overdraftLimit, User owner)
         {
-            var acc = new CheckingAccount
-            {
-                AccountNumber = accountNumber,
-                OwnerName = ownerName,
-                Balance = initialBalance,
-                OverdraftLimit = overdraftLimit
-            };
-
+            var acc = new CheckingAccount(accountNumber, ownerName, initialBalance, overdraftLimit, owner);
             _context.Accounts.Add(acc);
             _context.SaveChanges();
             return acc;
@@ -56,17 +43,15 @@ namespace BankSystem.ConsoleApp.Services
 
         public void Deposit(string accountNumber, decimal amount)
         {
-            var acc = GetByAccountNumber(accountNumber)
-                ?? throw new InvalidOperationException("Account not found.");
+            var acc = GetByAccountNumber(accountNumber) ?? throw new InvalidOperationException("Account not found.");
             acc.Deposit(amount);
             _context.SaveChanges();
         }
 
-        public void Withdraw(string accountNumber, decimal amount, string? description = null)
+        public void Withdraw(string accountNumber, decimal amount)
         {
-            var acc = GetByAccountNumber(accountNumber)
-                ?? throw new InvalidOperationException("Account not found.");
-            acc.Withdraw(amount, description);
+            var acc = GetByAccountNumber(accountNumber) ?? throw new InvalidOperationException("Account not found.");
+            acc.Withdraw(amount);
             _context.SaveChanges();
         }
     }

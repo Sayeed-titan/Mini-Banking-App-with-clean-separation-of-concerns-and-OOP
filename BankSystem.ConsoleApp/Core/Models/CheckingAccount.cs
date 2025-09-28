@@ -1,27 +1,22 @@
-﻿using System;
-
-namespace BankSystem.ConsoleApp.Core.Models
+﻿namespace BankSystem.ConsoleApp.Core.Models
 {
     public class CheckingAccount : Account
     {
-        public decimal OverdraftLimit { get; set; }
+        public decimal OverdraftLimit { get; private set; }
 
-        public CheckingAccount() : base() { } // For EF
+        public CheckingAccount() { }
 
-        public CheckingAccount(string accountNumber, string ownerName, decimal initialBalance, decimal overdraftLimit)
-            : base(accountNumber, ownerName, initialBalance)
+        public CheckingAccount(string accountNumber, string ownerName, decimal initialBalance, decimal overdraftLimit, User user)
+            : base(accountNumber, ownerName, initialBalance, user)
         {
             OverdraftLimit = overdraftLimit;
         }
 
-        public override void Withdraw(decimal amount, string? description = null)
+        public override void Withdraw(decimal amount)
         {
-            if (amount <= 0)
-                throw new InvalidOperationException("Withdrawal must be positive.");
-            if (Balance + OverdraftLimit < amount)
-                throw new InvalidOperationException("Insufficient funds (including overdraft).");
-
-            Balance -= amount;
+            if (amount <= 0) throw new InvalidOperationException("Withdrawal must be positive.");
+            if (Balance + OverdraftLimit < amount) throw new InvalidOperationException("Insufficient funds including overdraft.");
+            AdjustBalance( amount);
         }
     }
 }

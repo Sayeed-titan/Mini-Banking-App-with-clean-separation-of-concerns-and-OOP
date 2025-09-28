@@ -1,10 +1,5 @@
 ﻿using BankSystem.ConsoleApp.Core.Enums;
 using BankSystem.ConsoleApp.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BankSystem.ConsoleApp.Services
 {
@@ -13,6 +8,7 @@ namespace BankSystem.ConsoleApp.Services
         User Register(string username, string password, Role role = Role.Customer);
         User? Login(string username, string password);
         User? GetCurrentUser();
+        void Logout();
         bool Authorize(params Role[] roles);
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BankSystem.ConsoleApp.Core.Models
 {
@@ -8,32 +7,33 @@ namespace BankSystem.ConsoleApp.Core.Models
         [Key]
         public string AccountNumber { get; set; } = null!;
         public string OwnerName { get; set; } = null!;
+        public decimal Balance { get; private set; }
 
-        // Allow setting balance inside services & EF
-        public decimal Balance { get; set; }
+        // Navigation to User
+        public int UserId { get; set; }
+        public User User { get; set; } = null!;
 
-        protected Account() { }  // Needed for EF Core
+        protected Account() { }
 
-        protected Account(string accountNumber, string ownerName, decimal initialBalance)
+        protected Account(string accountNumber, string ownerName, decimal initialBalance, User user)
         {
             AccountNumber = accountNumber;
             OwnerName = ownerName;
             Balance = initialBalance;
+            User = user;
+            UserId = user.Id;
         }
 
         public virtual void Deposit(decimal amount)
         {
-            if (amount <= 0)
-                throw new InvalidOperationException("Deposit must be positive.");
+            if (amount <= 0) throw new InvalidOperationException("Deposit must be positive.");
             Balance += amount;
         }
 
-        public virtual void Withdraw(decimal amount, string? description = null)
+        public virtual void Withdraw(decimal amount)
         {
-            if (amount <= 0)
-                throw new InvalidOperationException("Withdrawal must be positive.");
-            if (Balance < amount)
-                throw new InvalidOperationException("Insufficient funds.");
+            if (amount <= 0) throw new InvalidOperationException("Withdrawal must be positive.");
+            if (Balance < amount) throw new InvalidOperationException("Insufficient funds.");
             Balance -= amount;
         }
 
@@ -41,5 +41,11 @@ namespace BankSystem.ConsoleApp.Core.Models
         {
             return $"{AccountNumber} | {OwnerName} | Balance: {Balance:C}";
         }
+
+        protected void AdjustBalance(decimal amount)
+        {
+            Balance += amount;
+        }
+
     }
 }

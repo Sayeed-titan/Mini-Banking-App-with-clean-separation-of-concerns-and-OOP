@@ -22,17 +22,12 @@ namespace BankSystem.ConsoleApp.Services
 
         public IEnumerable<Transaction> GetTransactionsForAccount(string accountNumber)
         {
-            return _context.Transactions
-                .Where(t => t.AccountNumber == accountNumber)
-                .OrderByDescending(t => t.Timestamp)
-                .ToList();
+            return _context.Transactions.Where(t => t.AccountNumber == accountNumber).ToList();
         }
 
         public IEnumerable<Transaction> GetAllTransactions()
         {
-            return _context.Transactions
-                .OrderByDescending(t => t.Timestamp)
-                .ToList();
+            return _context.Transactions.ToList();
         }
     }
 }

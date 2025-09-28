@@ -39,7 +39,12 @@ namespace BankSystem.ConsoleApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("AccountNumber");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Accounts");
 
@@ -97,7 +102,8 @@ namespace BankSystem.ConsoleApp.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -119,6 +125,22 @@ namespace BankSystem.ConsoleApp.Migrations
                     b.HasBaseType("BankSystem.ConsoleApp.Core.Models.Account");
 
                     b.HasDiscriminator().HasValue("Savings");
+                });
+
+            modelBuilder.Entity("BankSystem.ConsoleApp.Core.Models.Account", b =>
+                {
+                    b.HasOne("BankSystem.ConsoleApp.Core.Models.User", "User")
+                        .WithMany("Accounts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BankSystem.ConsoleApp.Core.Models.User", b =>
+                {
+                    b.Navigation("Accounts");
                 });
 #pragma warning restore 612, 618
         }

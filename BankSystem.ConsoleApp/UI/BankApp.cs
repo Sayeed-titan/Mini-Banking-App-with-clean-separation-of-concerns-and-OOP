@@ -1,5 +1,4 @@
-﻿using BankSystem.ConsoleApp.Core.Data;
-using BankSystem.ConsoleApp.Core.Enums;
+﻿using BankSystem.ConsoleApp.Core.Enums;
 using BankSystem.ConsoleApp.Core.Models;
 using BankSystem.ConsoleApp.Services;
 using System;
@@ -48,32 +47,23 @@ namespace BankSystem.ConsoleApp.UI
 
         private void Register()
         {
-            Console.Write("Enter username: ");
+            Console.Write("Username: ");
             var username = Console.ReadLine()!;
-
-            Console.Write("Enter password: ");
+            Console.Write("Password: ");
             var password = Console.ReadLine()!;
-
-            Console.Write("Enter role (Admin/Customer, default Customer): ");
+            Console.Write("Role (Admin/Customer): ");
             var roleInput = Console.ReadLine()!;
-
-            // Convert string to Role enum, default to Customer if invalid
-            Role role;
-            if (!Enum.TryParse<Role>(roleInput, true, out role))
-            {
-                role = Role.Customer;
-            }
+            Role role = Enum.TryParse<Role>(roleInput, true, out var parsedRole) ? parsedRole : Role.Customer;
 
             var user = _userService.Register(username, password, role);
-            Console.WriteLine($"✅ User '{user.Username}' registered with role '{user.Role}'");
+            Console.WriteLine($"✅ Registered '{user.Username}' with role {user.Role}");
         }
-
 
         private void Login()
         {
-            Console.Write("Enter username: ");
+            Console.Write("Username: ");
             var username = Console.ReadLine()!;
-            Console.Write("Enter password: ");
+            Console.Write("Password: ");
             var password = Console.ReadLine()!;
 
             var user = _userService.Login(username, password);
@@ -87,233 +77,133 @@ namespace BankSystem.ConsoleApp.UI
 
             if (_userService.Authorize(Role.Admin))
             {
-                Console.WriteLine("1. Create Account");
-                Console.WriteLine("2. View All Accounts");
-                Console.WriteLine("6. Show All Transactions");
+                Console.WriteLine("1) Create Account");
+                Console.WriteLine("2) List All Accounts");
+                Console.WriteLine("3) Show All Transactions");
             }
 
             if (_userService.Authorize(Role.Customer, Role.Admin))
             {
-                Console.WriteLine("3. Deposit");
-                Console.WriteLine("4. Withdraw");
-                Console.WriteLine("5. Show Balance");
-                Console.WriteLine("7. Show My Transactions");
+                Console.WriteLine("4) Deposit");
+                Console.WriteLine("5) Withdraw");
+                Console.WriteLine("6) Show My Accounts");
+                Console.WriteLine("7) Show My Transactions");
             }
 
-            Console.WriteLine("0. Logout");
+            Console.WriteLine("0) Logout");
             var choice = Console.ReadLine();
 
             switch (choice)
             {
-                case "1": if (_userService.Authorize(Role.Admin)) CreateAccountMenu(); break;
+                case "1": if (_userService.Authorize(Role.Admin)) CreateAccount(); break;
                 case "2": if (_userService.Authorize(Role.Admin)) ListAccounts(); break;
-                case "3": if (_userService.Authorize(Role.Customer, Role.Admin)) DepositMenu(); break;
-                case "4": if (_userService.Authorize(Role.Customer, Role.Admin)) WithdrawMenu(); break;
-                case "5": if (_userService.Authorize(Role.Customer, Role.Admin)) ShowBalanceMenu(); break;
-                case "6": if (_userService.Authorize(Role.Admin)) ShowTransactionHistoryMenu(); break;
-                case "7": if (_userService.Authorize(Role.Customer, Role.Admin)) ShowTransactionHistoryMenu(); break;
-                case "0": Logout(); break;
+                case "3": if (_userService.Authorize(Role.Admin)) ShowAllTransactions(); break;
+                case "4": if (_userService.Authorize(Role.Customer, Role.Admin)) Deposit(); break;
+                case "5": if (_userService.Authorize(Role.Customer, Role.Admin)) Withdraw(); break;
+                case "6": if (_userService.Authorize(Role.Customer, Role.Admin)) ShowMyAccounts(); break;
+                case "7": if (_userService.Authorize(Role.Customer, Role.Admin)) ShowMyTransactions(); break;
+                case "0": _userService.Logout(); break;
             }
         }
 
-
-        private void Logout()
+        // Implement all menu methods: CreateAccount, ListAccounts, ShowAllTransactions, Deposit, Withdraw, ShowMyAccounts, ShowMyTransactions
+        // You can reuse the previous implementations with updated services
+        private void CreateAccount()
         {
-            Console.WriteLine("Logged out.");
-        }
+            var user = _userService.GetCurrentUser()!;
+            Console.Write("Account Type (S-C Savings, C-C Checking): ");
+            var type = Console.ReadLine()?.Trim().ToUpperInvariant();
+            Console.Write("Account Number: ");
+            var accNo = Console.ReadLine()!;
+            Console.Write("Initial Balance: ");
+            var initial = decimal.Parse(Console.ReadLine()!);
 
+            Account acc;
+            if (type == "S")
+            {
+                acc = _accountService.CreateSavings(accNo, user.Username, initial, user);
+            }
+            else
+            {
+                Console.Write("Overdraft Limit: ");
+                var od = decimal.Parse(Console.ReadLine()!);
+                acc = _accountService.CreateChecking(accNo, user.Username, initial, od, user);
+            }
+            Console.WriteLine($"✅ Account created: {acc}");
+        }
 
         private void ListAccounts()
         {
             var list = _accountService.GetAllAccounts();
-            foreach (var a in list)
-                Console.WriteLine(a);
+            foreach (var a in list) Console.WriteLine(a);
         }
 
-        private void ShowTransactionHistoryMenu()
+        private void ShowAllTransactions()
         {
-            Console.Write("Account Number (or press ENTER for all): ");
-            var accNo = Console.ReadLine()?.Trim();
-
-            if (string.IsNullOrWhiteSpace(accNo))
-            {
-                var all = _transactionService.GetAllTransactions();
-                foreach (var tx in all)
-                    Console.WriteLine(tx);
-                return;
-            }
-
-            var txs = _transactionService.GetTransactionsForAccount(accNo);
-            if (!txs.Any())
-            {
-                Console.WriteLine("⚠ No transactions found for this account.");
-                return;
-            }
-
-            foreach (var tx in txs)
-                Console.WriteLine(tx);
+            var list = _transactionService.GetAllTransactions();
+            foreach (var t in list)
+                Console.WriteLine($"{t.Timestamp}: {t.AccountNumber} {t.Type} {t.Amount} Balance: {t.BalanceAfter:C}");
         }
 
-        private void ShowBalanceMenu()
+        private void Deposit()
         {
+            var user = _userService.GetCurrentUser()!;
             Console.Write("Account Number: ");
-            var accNo = Console.ReadLine()?.Trim();
+            var accNo = Console.ReadLine()!;
+            Console.Write("Amount: ");
+            var amt = decimal.Parse(Console.ReadLine()!);
 
-            var acc = _accountService.GetByAccountNumber(accNo!);
-            if (acc == null)
+            _accountService.Deposit(accNo, amt);
+            var acc = _accountService.GetByAccountNumber(accNo)!;
+            _transactionService.RecordTransaction(new Transaction
             {
-                Console.WriteLine("⚠ Account not found.");
-                return;
-            }
+                AccountNumber = acc.AccountNumber,
+                Type = TransactionType.Deposit,
+                Amount = amt,
+                BalanceAfter = acc.Balance
+            });
 
-            Console.WriteLine($"Account: {acc.AccountNumber} | Owner: {acc.OwnerName} | Balance: {acc.Balance:C}");
+            Console.WriteLine("✅ Deposit successful");
         }
 
-        private void WithdrawMenu()
+        private void Withdraw()
         {
+            var user = _userService.GetCurrentUser()!;
             Console.Write("Account Number: ");
-            var accNo = Console.ReadLine();
+            var accNo = Console.ReadLine()!;
+            Console.Write("Amount: ");
+            var amt = decimal.Parse(Console.ReadLine()!);
 
-            Console.Write("Amount to withdraw: ");
-            var amt = ParseDecimalOrZero(Console.ReadLine());
-
-            Console.Write("Description (optional): ");
-            var desc = Console.ReadLine();
-
-            var acc = _accountService.GetByAccountNumber(accNo!);
-            if (acc == null)
+            _accountService.Withdraw(accNo, amt);
+            var acc = _accountService.GetByAccountNumber(accNo)!;
+            _transactionService.RecordTransaction(new Transaction
             {
-                Console.WriteLine("⚠ Account not found.");
-                return;
-            }
+                AccountNumber = acc.AccountNumber,
+                Type = TransactionType.Withdraw,
+                Amount = amt,
+                BalanceAfter = acc.Balance
+            });
 
-            try
-            {
-                acc.Withdraw(amt, desc);
-                var tx = new Transaction
-                {
-                    AccountNumber = acc.AccountNumber,
-                    Type = TransactionType.Withdraw,
-                    Amount = amt,
-                    BalanceAfter = acc.Balance,
-                    Description = desc
-                };
-                _transactionService.RecordTransaction(tx);
-
-                Console.WriteLine($"✅ Withdraw {amt:C} from {acc.AccountNumber}. New balance: {acc.Balance:C}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Withdraw failed: {ex.Message}");
-            }
+            Console.WriteLine("✅ Withdrawal successful");
         }
 
-        private void DepositMenu()
+        private void ShowMyAccounts()
         {
-            Console.Write("Enter account number: ");
-            var accNum = Console.ReadLine()!;
-
-            Console.Write("Enter amount to deposit: ");
-            var depositAmount = ParseDecimalOrZero(Console.ReadLine());
-
-            try
-            {
-                _accountService.Deposit(accNum, depositAmount);
-
-                var tx = new Transaction
-                {
-                    AccountNumber = accNum,
-                    Type = TransactionType.Deposit,
-                    Amount = depositAmount,
-                    BalanceAfter = _accountService.GetByAccountNumber(accNum)!.Balance,
-                    Description = "Deposit"
-                };
-                _transactionService.RecordTransaction(tx);
-
-                Console.WriteLine($"✅ Deposit {depositAmount:C} successful!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Deposit failed: {ex.Message}");
-            }
+            var user = _userService.GetCurrentUser()!;
+            var list = _accountService.GetAllAccounts().Where(a => a.UserId == user.Id);
+            foreach (var a in list) Console.WriteLine(a);
         }
 
-        private void CreateAccountMenu()
+        private void ShowMyTransactions()
         {
-            Console.Write("Account Type (S-Saving, C-Checking): ");
-            var type = Console.ReadLine()?.Trim().ToUpperInvariant();
-
-            Console.Write("Account Number: ");
-            var accNo = Console.ReadLine()?.Trim();
-
-            Console.Write("Owner Name: ");
-            var owner = Console.ReadLine()?.Trim();
-
-            Console.Write("Initial Balance: ");
-            var balStr = Console.ReadLine();
-            decimal initial = ParseDecimalOrZero(balStr);
-
-            try
+            var user = _userService.GetCurrentUser()!;
+            var accounts = _accountService.GetAllAccounts().Where(a => a.UserId == user.Id);
+            foreach (var acc in accounts)
             {
-                Account acc;
-                if (type == "S")
-                {
-                    acc = _accountService.CreateSavings(accNo!, owner!, initial);
-                }
-                else
-                {
-                    Console.Write("Overdraft Limit (for checking): ");
-                    var odStr = Console.ReadLine();
-                    var od = ParseDecimalOrZero(odStr);
-
-                    acc = _accountService.CreateChecking(accNo!, owner!, initial, od);
-                }
-
-                Console.WriteLine($"✅ Created account: {acc}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error creating account: {ex.Message}");
+                var txs = _transactionService.GetTransactionsForAccount(acc.AccountNumber);
+                foreach (var tx in txs)
+                    Console.WriteLine($"{tx.Timestamp}: {tx.Type} {tx.Amount} Balance: {tx.BalanceAfter:C}");
             }
         }
-
-        private decimal ParseDecimalOrZero(string? input)
-        {
-            return decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out var v)
-                ? v
-                : 0m;
-        }
-
-        private void PrintMenu()
-        {
-            var currentUser = _userService.GetCurrentUser();
-            if (currentUser == null)
-            {
-                Console.WriteLine("⚠ No user logged in.");
-                return;
-            }
-
-            Console.WriteLine();
-            Console.WriteLine($"=== Bank System ({currentUser.Role}) ===");
-
-            if (currentUser.Role == Role.Admin)
-            {
-                Console.WriteLine("1) Create Account");
-                Console.WriteLine("6) List All Accounts");
-                Console.WriteLine("5) Show All Transactions");
-            }
-            else if (currentUser.Role == Role.Customer)
-            {
-                Console.WriteLine("2) Deposit");
-                Console.WriteLine("3) Withdraw");
-                Console.WriteLine("4) Show Balance");
-                Console.WriteLine("5) Show My Transactions");
-            }
-
-            Console.WriteLine("0) Logout");
-            Console.WriteLine();
-        }
-
-
     }
 }

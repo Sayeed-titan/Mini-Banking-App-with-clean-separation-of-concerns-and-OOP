@@ -1,21 +1,24 @@
 ﻿using BankSystem.ConsoleApp.Core.Enums;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace BankSystem.ConsoleApp.Core.Models
 {
     public class User
     {
+        [Key]
         public int Id { get; set; }
+
+        [Required, MaxLength(50)]
         public string Username { get; set; } = null!;
 
-        // Add password hash property
+        [Required]
         public string PasswordHash { get; set; } = null!;
 
-        // Make Role as enum
+        [Required]
         public Role Role { get; set; } = Role.Customer;
+
+        // Navigation
+        public ICollection<Account> Accounts { get; set; } = new List<Account>();
     }
 }
