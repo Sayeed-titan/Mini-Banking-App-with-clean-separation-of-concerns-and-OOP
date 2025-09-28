@@ -17,6 +17,7 @@ namespace BankSystem.ConsoleApp.Core.Data
 
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Core.Models.Transaction> Transactions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +26,8 @@ namespace BankSystem.ConsoleApp.Core.Data
                 .HasDiscriminator<string>("AccountType")
                 .HasValue<SavingsAccount>("Savings")
                 .HasValue<CheckingAccount>("Checking");
+
+
 
             base.OnModelCreating(modelBuilder);
 
