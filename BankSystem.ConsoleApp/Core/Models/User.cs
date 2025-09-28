@@ -11,9 +11,11 @@ namespace BankSystem.ConsoleApp.Core.Models
     {
         public int Id { get; set; }
         public string Username { get; set; } = null!;
-        public string PasswordHash { get; set; } = null!;
-        public Role Role { get; set; } = Role.Customer;
 
-        public override string ToString() => $"{Username} ({Role})";
+        // Add password hash property
+        public string PasswordHash { get; set; } = null!;
+
+        // Make Role as enum
+        public Role Role { get; set; } = Role.Customer;
     }
 }

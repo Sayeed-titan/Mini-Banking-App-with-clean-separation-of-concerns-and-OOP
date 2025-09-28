@@ -1,5 +1,6 @@
 ﻿using BankSystem.ConsoleApp.Core.Data;
 using BankSystem.ConsoleApp.Infrastructure;
+using BankSystem.ConsoleApp.Services;
 using BankSystem.ConsoleApp.UI;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +15,15 @@ using var context = new BankDbContext(options);
 // 3. Ensure DB is created
 context.Database.EnsureCreated();
 
+IAccountService accountService = new AccountService(context);
+ITransactionService transactionService = new TransactionService(context);
+IUserService userService = new UserService(context);
+
 //Seeder
 DbSeeder.Seed(context);
 
 // 4. Pass context (or services built on it) to the app
-var app = new BankApp(context);
+var app = new BankApp(accountService, transactionService, userService);
 app.Run();
 
 // 5. Wait before exit
