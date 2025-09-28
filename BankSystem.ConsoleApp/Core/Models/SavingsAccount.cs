@@ -8,6 +8,9 @@ namespace BankSystem.ConsoleApp.Core.Models
 {
     public class SavingsAccount : Account
     {
+        private SavingsAccount() : base() { }
+
+
         public SavingsAccount(string accountNumber, string ownerName, decimal initialBalance = 0) : base(accountNumber, ownerName, initialBalance)
         {
         }

@@ -10,6 +10,9 @@ namespace BankSystem.ConsoleApp.Core.Models
     {
         public decimal OverdraftLimit { get; private set; }
 
+        private CheckingAccount() : base() { }
+
+
         public CheckingAccount(string accountNumber, string ownerName, decimal initialBalance = 0, decimal overdraftLimit = 0) : base(accountNumber, ownerName, initialBalance)
         {
             OverdraftLimit = overdraftLimit;

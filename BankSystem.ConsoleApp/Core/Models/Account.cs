@@ -10,6 +10,9 @@ namespace BankSystem.ConsoleApp.Core.Models
         public string OwnerName { get; private set; }
         public decimal Balance { get; protected set; }
 
+        protected Account()
+        {
+        }
 
         protected Account(string accountNumber, string ownerName, decimal initialBalance = 0m)
         {
@@ -23,6 +26,7 @@ namespace BankSystem.ConsoleApp.Core.Models
             OwnerName = ownerName;
             Balance = initialBalance;
         }
+
 
         public virtual void Deposite(decimal amount, string? description = null)
         {
